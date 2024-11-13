@@ -8,9 +8,15 @@
 
         @vite('resources/css/app.css')
     </head>
-    <body class="antialiased font-body">
-        {{ $slot }}
+    <body class="antialiased font-body bg-gray-200">
 
+        <div class="min-h-screen flex w-full items-center justify-center">
+            <div class="flex flex-col gap-5 justify-center w-full max-w-5xl m-auto bg-white rounded-2xl shadow-sm min-h-[500px] p-6">
+                <div class="flex-1">
+                    {{ $slot }}
+                </div>
+            </div>
+        </div>
         @vite('resources/js/app.js')
     </body>
 </html>
