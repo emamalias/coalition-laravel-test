@@ -29,26 +29,21 @@ new class extends Component {
 
     public float $totalValue;
 
+    protected string $jsonPath = 'app/public/inventory.json';
+
     public function mount()
     {
         $this->productName = '';
         $this->quantity = 0;
         $this->price = 0.0;
 
-        $this->products = collect([
-            [
-                'productName' => 'Product 1',
-                'quantity' => 10,
-                'price' => 100.0,
-                'dateSubmitted' => now()->toDateTimeString(),
-            ],
-            [
-                'productName' => 'Product 2',
-                'quantity' => 5,
-                'price' => 50.0,
-                'dateSubmitted' => now()->toDateTimeString(),
-            ],
-        ]);
+        if (file_exists(storage_path($this->jsonPath))) {
+            $jsonProducts = file_get_contents(storage_path($this->jsonPath));
+            $productsArray = json_decode($jsonProducts, true);
+            $this->products = collect($productsArray);
+        } else {
+            $this->products = collect([]);
+        }
 
         $this->totalValue = 0;
     }
@@ -88,6 +83,8 @@ new class extends Component {
         ];
 
         $this->products->push($newProduct);
+
+        $this->syncProductsToJsonFile();
     }
 
     public function deleteProduct($index)
@@ -95,6 +92,8 @@ new class extends Component {
         $this->products->forget($index);
 
         $this->calculateTotalValue();
+
+        $this->syncProductsToJsonFile();
     }
 
     public function updateProduct($index)
@@ -106,7 +105,7 @@ new class extends Component {
             'dateSubmitted' => now()->toDateTimeString(),
         ];
 
-        // TODO
+        $this->syncProductsToJsonFile();
     }
 
     public function requestUpdate(int $index): void
@@ -129,6 +128,14 @@ new class extends Component {
         $this->totalValue = $this->products->sum(function ($product) {
             return $product['quantity'] * $product['price'];
         });
+    }
+
+
+    public function syncProductsToJsonFile()
+    {
+        $productsArray = $this->products->toArray();
+        $jsonProducts = json_encode($productsArray, JSON_PRETTY_PRINT);
+        file_put_contents(storage_path($this->jsonPath), $jsonProducts);
     }
 
 }; ?>
@@ -194,7 +201,7 @@ new class extends Component {
                         <td class="p-2 border border-gray-300 text-right">${{ number_format($product['quantity'] * $product['price'], 2) }}</td>
                         <td class="p-2 border border-gray-300 text-left">
                             <button class="text-blue-500 underline mx-1" wire:click='requestUpdate(@js($key))'>U</button>
-                            <button class="text-red-500 underline mx-1">D</button>
+                            <button class="text-red-500 underline mx-1" wire:click='deleteProduct(@js($key))'>D</button>
                         </td>
                     </tr>
                 @endforeach
