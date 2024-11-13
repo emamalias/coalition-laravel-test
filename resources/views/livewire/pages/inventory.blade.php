@@ -53,10 +53,31 @@ new class extends Component {
         $this->totalValue = 0;
     }
 
-    public function createProduct()
+    protected function resetForm()
+    {
+        $this->productName = '';
+        $this->quantity = 0;
+        $this->price = 0.0;
+        $this->updateProductIndex = null;
+    }
+
+    public function saveProduct(): void
     {
         $this->validate();
 
+        if ($this->updateProductIndex !== null) {
+            $this->updateProduct($this->updateProductIndex);
+        } else {
+            $this->createProduct();
+        }
+
+        $this->resetForm();
+
+        $this->calculateTotalValue();
+    }
+
+    public function createProduct()
+    {
         $this->dateSubmitted = now()->toDateTimeString();
 
         $newProduct = [
@@ -67,21 +88,6 @@ new class extends Component {
         ];
 
         $this->products->push($newProduct);
-
-        $this->calculateTotalValue();
-
-        // clear form
-        $this->productName = '';
-        $this->quantity = 0;
-        $this->price = 0.0;
-    }
-
-    protected function resetForm()
-    {
-        $this->productName = '';
-        $this->quantity = 0;
-        $this->price = 0.0;
-        $this->updateProductIndex = null;
     }
 
     public function deleteProduct($index)
@@ -93,21 +99,14 @@ new class extends Component {
 
     public function updateProduct($index)
     {
-        $this->validate();
-
         $this->products[$index] = [
             'productName' => $this->productName,
             'quantity' => $this->quantity,
             'price' => $this->price,
-            'dateSubmitted' => $this->dateSubmitted,
+            'dateSubmitted' => now()->toDateTimeString(),
         ];
 
-        $this->calculateTotalValue();
-
-        // clear form
-        $this->productName = '';
-        $this->quantity = 0;
-        $this->price = 0.0;
+        // TODO
     }
 
     public function requestUpdate(int $index): void
@@ -138,7 +137,7 @@ new class extends Component {
     <h1 class="text-4xl font-bold">Inventory Management</h1>
 
     <form
-        wire:submit.prevent="createProduct"
+        wire:submit.prevent="saveProduct"
         class="flex w-full gap-5 mt-5 @if ($errors->any()) items-center @else items-end @endif"
     >
         <div class="flex-1 flex flex-col gap-2">
