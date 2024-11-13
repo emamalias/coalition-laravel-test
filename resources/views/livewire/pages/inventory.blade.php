@@ -195,7 +195,7 @@ new class extends Component {
                 @foreach ($products as $key => $product)
                     <tr>
                         <td class="p-2 border border-gray-300 text-left">{{ $product['productName'] }}</td>
-                        <td class="p-2 border border-gray-300 text-right">${{ $product['quantity'] }}</td>
+                        <td class="p-2 border border-gray-300 text-right">{{ $product['quantity'] }}</td>
                         <td class="p-2 border border-gray-300 text-right">${{ $product['price'] }}</td>
                         <td class="p-2 border border-gray-300 text-left">{{ $product['dateSubmitted'] }}</td>
                         <td class="p-2 border border-gray-300 text-right">${{ number_format($product['quantity'] * $product['price'], 2) }}</td>
