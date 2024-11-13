@@ -9,17 +9,17 @@ new class extends Component {
 
     #[Validate('required', message: 'Required')]
     #[Validate('min:3', message: 'Atleast 3 characters')]
-    public string $productName;
+    public $productName;
 
     #[Validate('required', message: 'Required')]
     #[Validate('numeric', message: 'Must be a number')]
     #[Validate('min:1', message: 'Atleast 1')]
-    public int $quantity;
+    public $quantity;
 
     #[Validate('required', message: 'Required')]
     #[Validate('numeric', message: 'Must be a number')]
     #[Validate('min:0.01', message: 'Atleast 0.01')]
-    public float $price;
+    public $price;
 
     public string $dateSubmitted;
 
@@ -147,21 +147,21 @@ new class extends Component {
         wire:submit.prevent="saveProduct"
         class="flex w-full gap-5 mt-5 @if ($errors->any()) items-center @else items-end @endif"
     >
-        <div class="flex-1 flex flex-col gap-2">
+        <div class="flex-1 flex flex-col self-start gap-2">
             <label for="product-name">Product Name</label>
-            <input type="text" id="product-name" wire:model="productName" class="p-2 border border-gray-300 rounded-md">
+            <input type="text" id="product-name" wire:model.live.debounce.500ms="productName" class="p-2 border border-gray-300 rounded-md">
             @error('productName') <span class="text-red-500">{{ $message }}</span> @enderror
         </div>
 
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col self-start gap-2">
             <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" wire:model="quantity" class="p-2 border border-gray-300 rounded-md">
+            <input type="number" id="quantity" wire:model.live.debounce.500ms="quantity" class="p-2 border border-gray-300 rounded-md">
             @error('quantity') <span class="text-red-500">{{ $message }}</span> @enderror
         </div>
 
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col self-start gap-2">
             <label for="price">Price</label>
-            <input type="text" id="price" wire:model="price" class="p-2 border border-gray-300 rounded-md">
+            <input type="text" id="price" wire:model.live.debounce.500ms="price" class="p-2 border border-gray-300 rounded-md">
             @error('price') <span class="text-red-500">{{ $message }}</span> @enderror
         </div>
         <div class="flex flex-col gap-2">
