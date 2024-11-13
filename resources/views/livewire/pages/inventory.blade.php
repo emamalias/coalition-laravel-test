@@ -26,8 +26,8 @@ new class extends Component {
 <div>
     <h1 class="text-4xl font-bold">Inventory Management</h1>
 
-    <form wire:submit.prevent="createProduct" class="flex gap-5 mt-5 items-end">
-        <div class="flex flex-col gap-2">
+    <form wire:submit.prevent="createProduct" class="flex w-full gap-5 mt-5 items-end">
+        <div class="flex-1 flex flex-col gap-2">
             <label for="product-name">Product Name</label>
             <input type="text" id="product-name" wire:model="productName" class="p-2 border border-gray-300 rounded-md">
         </div>
@@ -59,16 +59,23 @@ new class extends Component {
             </tr>
         </thead>
         <tbody>
-            @foreach ($products as $product)
+            @if (count($products) === 0)
                 <tr>
-                    <td class="p-2 border border-gray-300">{{ $product['productName'] }}</td>
-                    <td class="p-2 border border-gray-300">{{ $product['quantity'] }}</td>
-                    <td class="p-2 border border-gray-300">{{ $product['price'] }}</td>
-                    <td class="p-2 border border-gray-300">{{ $product['dateSubmitted'] }}</td>
-                    <td class="p-2 border border-gray-300">{{ $product['quantity'] * $product['price'] }}</td>
-                    <td class="p-2 border border-gray-300">edit</td>
+                    <td class="py-10 p-2 border border-gray-300 text-center text-gray-500" colspan="6">No products found</td>
                 </tr>
-            @endforeach
+            @else
+                @foreach ($products as $product)
+                    <tr>
+                        <td class="p-2 border border-gray-300">{{ $product['productName'] }}</td>
+                        <td class="p-2 border border-gray-300">{{ $product['quantity'] }}</td>
+                        <td class="p-2 border border-gray-300">{{ $product['price'] }}</td>
+                        <td class="p-2 border border-gray-300">{{ $product['dateSubmitted'] }}</td>
+                        <td class="p-2 border border-gray-300">{{ $product['quantity'] * $product['price'] }}</td>
+                        <td class="p-2 border border-gray-300">edit</td>
+                    </tr>
+                @endforeach
+            @endif
+
         </tbody>
 
         <tfoot>
