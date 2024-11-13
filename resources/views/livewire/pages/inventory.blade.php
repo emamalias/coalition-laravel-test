@@ -23,6 +23,8 @@ new class extends Component {
 
     public string $dateSubmitted;
 
+    public int | null $updateProductIndex = null;
+
     public Collection $products;
 
     public float $totalValue;
@@ -33,7 +35,20 @@ new class extends Component {
         $this->quantity = 0;
         $this->price = 0.0;
 
-        $this->products = collect([]);
+        $this->products = collect([
+            [
+                'productName' => 'Product 1',
+                'quantity' => 10,
+                'price' => 100.0,
+                'dateSubmitted' => now()->toDateTimeString(),
+            ],
+            [
+                'productName' => 'Product 2',
+                'quantity' => 5,
+                'price' => 50.0,
+                'dateSubmitted' => now()->toDateTimeString(),
+            ],
+        ]);
 
         $this->totalValue = 0;
     }
@@ -59,6 +74,14 @@ new class extends Component {
         $this->productName = '';
         $this->quantity = 0;
         $this->price = 0.0;
+    }
+
+    protected function resetForm()
+    {
+        $this->productName = '';
+        $this->quantity = 0;
+        $this->price = 0.0;
+        $this->updateProductIndex = null;
     }
 
     public function deleteProduct($index)
@@ -87,7 +110,22 @@ new class extends Component {
         $this->price = 0.0;
     }
 
-    protected function calculateTotalValue(): void
+    public function requestUpdate(int $index): void
+    {
+        // find product by index
+        $product = $this->products->get($index);
+
+        if ($product === null) {
+            return;
+        }
+
+        $this->updateProductIndex = $index;
+        $this->productName = $product['productName'];
+        $this->quantity = $product['quantity'];
+        $this->price = $product['price'];
+    }
+
+    public function calculateTotalValue(): void
     {
         $this->totalValue = $this->products->sum(function ($product) {
             return $product['quantity'] * $product['price'];
@@ -96,7 +134,7 @@ new class extends Component {
 
 }; ?>
 
-<div>
+<div wire:init='calculateTotalValue'>
     <h1 class="text-4xl font-bold">Inventory Management</h1>
 
     <form
@@ -121,7 +159,13 @@ new class extends Component {
             @error('price') <span class="text-red-500">{{ $message }}</span> @enderror
         </div>
         <div class="flex flex-col gap-2">
-            <button type="submit" class="p-2 bg-blue-500 text-white rounded-md px-5 font-bold">Add Product</button>
+            <button type="submit" class="p-2 bg-blue-500 text-white rounded-md px-5 font-bold">
+                @if ($updateProductIndex !== null)
+                    <span>Update Product</span>
+                @else
+                    <span>Add Product</span>
+                @endif
+            </button>
         </div>
     </form>
 
@@ -142,7 +186,7 @@ new class extends Component {
                     <td class="py-10 p-2 border border-gray-300 text-center text-gray-500" colspan="6">No products found</td>
                 </tr>
             @else
-                @foreach ($products as $product)
+                @foreach ($products as $key => $product)
                     <tr>
                         <td class="p-2 border border-gray-300 text-left">{{ $product['productName'] }}</td>
                         <td class="p-2 border border-gray-300 text-right">${{ $product['quantity'] }}</td>
@@ -150,7 +194,8 @@ new class extends Component {
                         <td class="p-2 border border-gray-300 text-left">{{ $product['dateSubmitted'] }}</td>
                         <td class="p-2 border border-gray-300 text-right">${{ number_format($product['quantity'] * $product['price'], 2) }}</td>
                         <td class="p-2 border border-gray-300 text-left">
-                            e | x
+                            <button class="text-blue-500 underline mx-1" wire:click='requestUpdate(@js($key))'>U</button>
+                            <button class="text-red-500 underline mx-1">D</button>
                         </td>
                     </tr>
                 @endforeach
